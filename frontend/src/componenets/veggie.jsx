@@ -59,51 +59,70 @@ function Veggies() {
 }
 
 const Wrapper = styled.div`
-  margin: 4rem 0rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 2rem;
+  margin: 4rem 2rem;
+  padding: 0 1rem;
 `;
 
 const Card = styled.div`
-  min-height: 25rem;
-  border-radius: 2rem;
-  overflow: hidden;
   position: relative;
+  
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  &:hover{
+    transform: translateY(-0.5rem);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+
+
+
 
   img {
-    border-radius: 2rem;
-    position: absolute;
-    left: 0;
     width: 100%;
-    height: 100%;
+    
     object-fit: cover;
+    border-radius: 12px;
+    
   }
   p {
     position: absolute;
-    z-index: 10;
-    left: 50%;
     bottom: 0%;
-    transform: translate(-50%, 0%);
-    color: white;
     width: 100%;
+    padding: 0.5rem
+    color: white;
     text-align: center;
-    font-weight: 600;
-    font-size: 1rem;
-    height: 40%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    z-index: 2;
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 0 0 1.5rem 1.5rem;
+
+    
+  }
+  a{
+    text-decoration: none;
+    color: inherit;
+    display: block;
+
+    &:hover {
+      color: #0072ff;
+    }
+
   }
 `;
 
 const Gradient = styled.div`
-  z-index: 3;
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    rgba(0, 0, 0, 0),
-    rgba(0, 0, 0, 0),
-    rgb(0, 0, 0, 0.5)
-  );
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+  z-index: 1;
 `;
 
 export default Veggies;

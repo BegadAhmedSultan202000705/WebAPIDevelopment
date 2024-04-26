@@ -24,7 +24,7 @@ function Recipe() {
     <DetailWrapper>
       <div>
         <h2>{details.title}</h2>
-        <img src="" alt="" />
+        <img src={details.image} alt={details.title} />
       </div>
       <Info>
         <Button
@@ -59,35 +59,58 @@ function Recipe() {
 }
 
 const DetailWrapper = styled.div`
-  margin-top: 10rem;
-  margin-bottom: 5rem;
+  margin-top: 5rem;
+  margin-bottom: 3rem;
   display: flex;
+  gap: 2rem;
+  justify-content: center;
+
   .active {
-    background: linear-gradient(35deg, #494949, #313131);
+    background: linear-gradient(to right, #f27121, #e94057);
     color: white;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
   }
+
   h2 {
-    margin-bottom: 2rem;
-  }
-  li {
-    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 2rem;
     line-height: 2.5rem;
   }
+
+  li {
+    font-size: 1.2rem;
+    line-height: 1.8rem;
+    color: #333;
+  }
+
   ul {
-    margin-top: 2rem;
+    margin-top: 1rem;
+    list-style: inside;
+    padding-left: 1.5rem;
   }
 `;
 
 const Button = styled.button`
-  padding: 1rem 2rem;
-  color: #313131;
-  background: white;
-  border: 2px solid black;
-  margin-right: 2rem;
+  padding: 0.75rem 1.5rem;
+  color: #333;
+  background-color: white;
+  border: 1px solid #ccc;
+  margin-right: 1rem;
   font-weight: 600;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: #0072ff;
+    color: white;
+    border-color: #0072ff;
+  }
 `;
 const Info = styled.div`
-  margin-left: 10rem;
+  margin-left: 2rem;
+  flex: 1;
 `;
 
 export default Recipe;

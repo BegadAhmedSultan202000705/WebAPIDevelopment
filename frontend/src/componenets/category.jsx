@@ -29,7 +29,13 @@ function Category() {
 const List = styled.div`
   display: flex;
   justify-content: center;
-  margin: 2rem 0rem;
+  gap: 1rem;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #f7f7f7;
+  border-radius: 12px
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  max-width: 80%
 `;
 
 const SLink = styled(NavLink)`
@@ -37,32 +43,41 @@ const SLink = styled(NavLink)`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
-  margin-right: 2rem;
+  border-radius: 8px;
+  margin: 0;
+  padding: 0.5rem;
   text-decoration: none;
-  background: linear-gradient(35deg, #494949, #313131);
-  width: 6rem;
-  height: 6rem;
+  background: #ffffff;
+  width: 7rem;
+  height: 7rem;
   cursor: pointer;
-  transform: scale(0.8);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
   h4 {
-    color: white;
-    font-size: 0.8rem;
+    color: #313131;
+    font-size: 0.9rem
+    margin-top: 0.3rem;
   }
 
   svg {
-    color: white;
-    font-size: 1.5rem;
+    color: #313131;
+    font-size: 2rem;
   }
+  &:hover{
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  
   &.active {
-    background: linear-gradient(to right, #f27121, #e94057);
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
     svg {
       color: white;
     }
     h4 {
       color: white;
     }
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   }
 `;
 

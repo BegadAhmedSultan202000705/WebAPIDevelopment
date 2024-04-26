@@ -24,7 +24,7 @@ function Searched() {
       {searchedRecipes.map((item) => {
         return (
           <Card key={item.id}>
-            <Link to={"recipe/" + item.id}>
+            <Link to={"/recipe/" + item.id}>
               <img src={item.image} alt="" />
               <h4>{item.title}</h4>
             </Link>
@@ -37,21 +37,60 @@ function Searched() {
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-  grid-gap: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
 const Card = styled.div`
+  position: relative;
+  
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  &:hover{
+    transform: translateY(-0.5rem);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  }
+
+
+
+
   img {
     width: 100%;
-    border-radius: 2rem;
+    
+    object-fit: cover;
+    border-radius: 12px;
+    
   }
-  a {
-    text-decoration: none;
-  }
-  h4 {
+  p {
+    position: absolute;
+    bottom: 0%;
+    width: 100%;
+    padding: 0.5rem
+    color: white;
     text-align: center;
-    padding: 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    z-index: 2;
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 0 0 1.5rem 1.5rem;
+
+    
+  }
+  a{
+    text-decoration: none;
+    color: inherit;
+    display: block;
+
+    &:hover {
+      color: #0072ff;
+    }
+
   }
 `;
 
