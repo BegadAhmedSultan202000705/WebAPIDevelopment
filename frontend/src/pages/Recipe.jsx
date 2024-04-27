@@ -1,24 +1,45 @@
-import { useEffect, useState } from "react";
-import { styled } from "styled-components";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import React from "react";
+import config from "../config";
 
 function Recipe() {
-  let params = useParams();
+  const { name } = useParams();
   const [details, setDetails] = useState({});
   const [activeTab, setActiveTab] = useState("instructions");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchDetails = async () => {
-    const data = await fetch(
-      `https://api.spoonacular.com/recipes/${params.name}/information?apiKey=287473f17d564591a5cdb3ab57c3e4ac`
-    );
-    const detailData = await data.json();
-    setDetails(detailData);
+    try {
+      // Make an API request to the backend server
+      const response = await axios.get(
+        `${config.apiBaseUrl}/api/recipes/${name}`
+      );
+
+      // Update the state with the data received
+      setDetails(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching recipe details:", error);
+      setError(error);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchDetails();
-  }, [params.name]);
+  }, [name]);
+
+  // Handle loading and error states
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <DetailWrapper>
@@ -40,12 +61,14 @@ function Recipe() {
         >
           Ingredients
         </Button>
+
         {activeTab === "instructions" && (
           <div>
             <h3 dangerouslySetInnerHTML={{ __html: details.summary }}></h3>
             <h3 dangerouslySetInnerHTML={{ __html: details.instructions }}></h3>
           </div>
         )}
+
         {activeTab === "ingredients" && (
           <ul>
             {details.extendedIngredients.map((ingredient) => (
@@ -108,6 +131,7 @@ const Button = styled.button`
     border-color: #0072ff;
   }
 `;
+
 const Info = styled.div`
   margin-left: 2rem;
   flex: 1;

@@ -1,34 +1,51 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import styled from "styled-components";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/splide/dist/css/splide.min.css";
 import { Link } from "react-router-dom";
+import config from "../config";
 
 function Veggies() {
   const [veggies, setVeggies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    getVeggies();
+    // Fetch vegetarian recipes from the backend server
+    const fetchVeggies = async () => {
+      try {
+        // Make an API request to the backend server
+        const response = await axios.get(
+          `${config.apiBaseUrl}/api/recipes/vegetarian`
+        );
+
+        // Update the state with the data received
+        setVeggies(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching vegetarian recipes:", error);
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchVeggies();
   }, []);
 
-  const getVeggies = async () => {
-    const check = localStorage.getItem("veggies");
+  // Handle loading and error states
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-    if (check) {
-      setVeggies(JSON.parse(check));
-    } else {
-      const api = await fetch(
-        `https:api.spoonacular.com/recipes/random?apiKey=287473f17d564591a5cdb3ab57c3e4ac&number=9&tags=vegetarian`
-      );
-      const data = await api.json();
-      localStorage.setItem("veggies", JSON.stringify(data.recipes));
-      setVeggies(data.recipes);
-      console.log(data.recipes);
-    }
-  };
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
     <div>
       <Wrapper>
-        <h3>Bego Picks Vegetarian Meals</h3>
+        <h3>Popular Vegetarian Meals</h3>
 
         <Splide
           options={{
@@ -39,19 +56,17 @@ function Veggies() {
             gap: "5rem",
           }}
         >
-          {veggies.map((recipe) => {
-            return (
-              <SplideSlide key={recipe.id}>
-                <Card>
-                  <Link to={"/recipe" + recipe.id}>
-                    <p>{recipe.title}</p>
-                    <img src={recipe.image} alt={recipe.title} />
-                    <Gradient />
-                  </Link>
-                </Card>
-              </SplideSlide>
-            );
-          })}
+          {veggies.map((recipe) => (
+            <SplideSlide key={recipe.id}>
+              <Card>
+                <Link to={`/recipe/${recipe.id}`}>
+                  <p>{recipe.title}</p>
+                  <img src={recipe.image} alt={recipe.title} />
+                  <Gradient />
+                </Link>
+              </Card>
+            </SplideSlide>
+          ))}
         </Splide>
       </Wrapper>
     </div>
@@ -69,41 +84,35 @@ const Wrapper = styled.div`
 
 const Card = styled.div`
   position: relative;
-  
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  &:hover{
+  &:hover {
     transform: translateY(-0.5rem);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   }
-
-
-
 
   img {
     width: 100%;
-    
     object-fit: cover;
     border-radius: 12px;
-    
   }
+
   p {
     position: absolute;
     bottom: 0%;
     width: 100%;
-    padding: 0.5rem
+    padding: 0.5rem;
     color: white;
     text-align: center;
     font-weight: 700;
     font-size: 1.1rem;
     z-index: 2;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0 0 1.5rem 1.5rem;
-
-    
   }
-  a{
+
+  a {
     text-decoration: none;
     color: inherit;
     display: block;
@@ -111,7 +120,6 @@ const Card = styled.div`
     &:hover {
       color: #0072ff;
     }
-
   }
 `;
 

@@ -4,11 +4,13 @@ import { BrowserRouter, Link } from "react-router-dom";
 import Search from "./componenets/search";
 import styled from "styled-components";
 import { GiKnifeFork } from "react-icons/gi";
+import MyComponent from "./componenets/myComponent";
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <MyComponent />
         <Nav>
           <GiKnifeFork />
           <Logo to={"/"}> BegoCooks</Logo>

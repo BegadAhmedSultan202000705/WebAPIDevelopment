@@ -14,8 +14,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     minLength: 8, // Minimum length for security
   },
-  // Additional fields for the user (optional)
-  // For example: name, roles, etc.
 });
 
 // Pre-save hook to hash password before saving user

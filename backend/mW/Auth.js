@@ -35,7 +35,7 @@ function authenticate(req, res, next) {
 function authorize(requiredRole) {
   return (req, res, next) => {
     // Assuming you have a User model and a method to find a user by ID
-    const User = require("./models/User");
+    const User = require("../models/User");
 
     User.findById(req.userId, (error, user) => {
       if (error || !user) {

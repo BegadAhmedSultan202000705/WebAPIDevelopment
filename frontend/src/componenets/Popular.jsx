@@ -1,36 +1,51 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import styled from "styled-components";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import "@splidejs/splide/dist/css/splide.min.css";
 import { Link } from "react-router-dom";
+import config from "../config";
 
 function Popular() {
   const [popular, setPopular] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    getPopular();
+    // Fetch popular recipes from the backend server
+    const fetchPopular = async () => {
+      try {
+        // Make an API request to the backend server
+        const response = await axios.get(
+          `${config.apiBaseUrl}/api/recipes/popular`
+        );
+
+        // Update the state with the data received
+        setPopular(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching popular recipes:", error);
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchPopular();
   }, []);
 
-  const getPopular = async () => {
-    const check = localStorage.getItem("popular");
+  // Handle loading and error states
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-    if (check) {
-      setPopular(JSON.parse(check));
-    } else {
-      const api = await fetch(
-        `https:api.spoonacular.com/recipes/random?apiKey=287473f17d564591a5cdb3ab57c3e4ac&number=9`
-      );
-      const data = await api.json();
-      localStorage.setItem("popular", JSON.stringify(data.recipes));
-      setPopular(data.recipes);
-      console.log(data.recipes);
-    }
-  };
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div>
       <Wrapper>
-        <h3>Bego Picks</h3>
+        <h3>Popular Picks</h3>
 
         <Splide
           options={{
@@ -41,19 +56,17 @@ function Popular() {
             gap: "5rem",
           }}
         >
-          {popular.map((recipe) => {
-            return (
-              <SplideSlide key={recipe.id}>
-                <Card>
-                  <Link to={"/recipe/" + recipe.id}>
-                    <p>{recipe.title}</p>
-                    <img src={recipe.image} alt={recipe.title} />
-                    <Gradient />
-                  </Link>
-                </Card>
-              </SplideSlide>
-            );
-          })}
+          {popular.map((recipe) => (
+            <SplideSlide key={recipe.id}>
+              <Card>
+                <Link to={`/recipe/${recipe.id}`}>
+                  <p>{recipe.title}</p>
+                  <img src={recipe.image} alt={recipe.title} />
+                  <Gradient />
+                </Link>
+              </Card>
+            </SplideSlide>
+          ))}
         </Splide>
       </Wrapper>
     </div>
@@ -71,41 +84,33 @@ const Wrapper = styled.div`
 
 const Card = styled.div`
   position: relative;
-  
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  &:hover{
+  &:hover {
     transform: translateY(-0.5rem);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   }
-
-
-
 
   img {
     width: 100%;
-    
     object-fit: cover;
     border-radius: 12px;
-    
   }
   p {
     position: absolute;
     bottom: 0%;
     width: 100%;
-    padding: 0.5rem
+    padding: 0.5rem;
     color: white;
     text-align: center;
     font-weight: 700;
     font-size: 1.1rem;
     z-index: 2;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0, 0, 0, 0.6);
     border-radius: 0 0 1.5rem 1.5rem;
-
-    
   }
-  a{
+  a {
     text-decoration: none;
     color: inherit;
     display: block;
@@ -113,7 +118,6 @@ const Card = styled.div`
     &:hover {
       color: #0072ff;
     }
-
   }
 `;
 
@@ -122,7 +126,6 @@ const Gradient = styled.div`
   width: 100%;
   height: 100%;
   z-index: 1;
-
   background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
 `;
 
