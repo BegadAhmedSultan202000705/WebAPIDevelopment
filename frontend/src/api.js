@@ -1,94 +1,114 @@
-import axios from "axios";
+const ENDPOINT = "http://localhost:3000";
 
-const API_URL = "http://localhost:3001/api";
+export const userLogin = async (userCredentials) =>
+  await fetch(`${ENDPOINT}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userCredentials),
+  });
 
-// Function to fetch recipes
-export const fetchRecipes = async () => {
+export const userSignup = async (userCredentials) =>
+  await fetch(`${ENDPOINT}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userCredentials),
+  });
+
+export const getRecipes = async ({ accessToken, preferences }) =>
+  await fetch(`${ENDPOINT}/api/recipe/recipes`, {
+    method: "POST",
+    headers: {
+      authorization: `OAT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(preferences),
+  });
+
+export const getSavedRecipes = async ({ accessToken }) =>
+  await fetch(`${ENDPOINT}/api/recipe/savedRecipes`, {
+    method: "GET",
+    headers: { authorization: `OAT ${accessToken}` },
+  });
+
+export const getIngredients = async ({ accessToken, recipeId }) =>
+  await fetch(`${ENDPOINT}/api/recipe/ingredients?recipeId=${recipeId}`, {
+    method: "GET",
+    headers: { authorization: `OAT ${accessToken}` },
+  });
+
+export const getInstructions = async ({ accessToken, recipeId }) =>
+  await fetch(`${ENDPOINT}/api/recipe/instructions?recipeId=${recipeId}`, {
+    method: "GET",
+    headers: { authorization: `OAT ${accessToken}` },
+  });
+
+export const getNutritionalInfo = async ({ accessToken, recipeId }) =>
+  await fetch(`${ENDPOINT}/api/recipe/nutritionalInfo?recipeId=${recipeId}`, {
+    method: "GET",
+    headers: { authorization: `OAT ${accessToken}` },
+  });
+
+export const saveRecipe = async ({ recipeInfo, accessToken }) => {
+  return await fetch(`${ENDPOINT}/api/recipe/save`, {
+    method: "POST",
+    headers: {
+      authorization: `OAT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(recipeInfo),
+  });
+};
+
+export const fetchMyRecipes = async ({ accessToken }) => {
   try {
-    const response = await axios.get(`${API_URL}/recipes`);
-    return response.data;
+    const response = await fetch(`${ENDPOINT}/api/recipe/Myrecipes`, {
+      method: "GET",
+      headers: {
+        authorization: `OAT ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
+    console.error("Error fetching my recipes:", error);
     throw error;
   }
 };
 
-// Function to register a new user
-export const registerUser = async (email, password) => {
-  try {
-    const response = await axios.post(`${API_URL}/auth/register`, {
-      email,
-      password,
-    });
-    return response.data; // This usually includes a success message or user data
-  } catch (error) {
-    throw error.response.data; // Contains error message from server
+export const createRecipe = async ({ recipeInfo, accessToken }) => {
+  const response = await fetch(`${ENDPOINT}/api/recipe/newrecipe`, {
+    method: "POST",
+    headers: {
+      authorization: `OAT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(recipeInfo),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to save the recipe");
   }
+
+  const data = await response.json();
+  return data;
 };
 
-// Function to log in a user
-export const loginUser = async (email, password) => {
-  try {
-    const response = await axios.post(`${API_URL}/auth/login`, {
-      email,
-      password,
-    });
-    return response.data; // Typically includes a JWT token
-  } catch (error) {
-    throw error.response.data; // Contains error message from server
-  }
-};
-// Function to create a new recipe
-export const createRecipe = async (recipeData, token) => {
-  try {
-    const config = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
-    const response = await axios.post(`${API_URL}/recipes`, recipeData, config);
-    return response.data; // Returns the created recipe object
-  } catch (error) {
-    throw error.response.data; // Contains error message from server
-  }
-};
+export const deleteRecipe = async ({ recipeId, accessToken }) =>
+  await fetch(`${ENDPOINT}/api/recipe/delete?recipeId=${recipeId}`, {
+    method: "DELETE",
+    headers: {
+      authorization: `OAT ${accessToken}`,
+    },
+  });
 
-// Function to update an existing recipe
-export const updateRecipe = async (recipeId, recipeData, token) => {
-  try {
-    const config = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
-    const response = await axios.put(
-      `${API_URL}/recipes/${recipeId}`,
-      recipeData,
-      config
-    );
-    return response.data; // Returns the updated recipe object
-  } catch (error) {
-    throw error.response.data; // Contains error message from server
-  }
-};
-
-// Function to delete a recipe
-export const deleteRecipe = async (recipeId, token) => {
-  try {
-    const config = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
-    const response = await axios.delete(
-      `${API_URL}/recipes/${recipeId}`,
-      config
-    );
-    return response.data; // Typically a success message
-  } catch (error) {
-    throw error.response.data; // Contains error message from server
-  }
-};
-
-// Function to fetch a single recipe by ID
-export const fetchRecipeById = async (recipeId) => {
-  try {
-    const response = await axios.get(`${API_URL}/recipes/${recipeId}`);
-    return response.data; // Returns the requested recipe object
-  } catch (error) {
-    throw error.response.data; // Contains error message from server
-  }
-};
+export const destroyAccessToken = async ({ accessToken }) =>
+  await fetch(`${ENDPOINT}/api/accessToken/destroy`, {
+    method: "DELETE",
+    headers: { authorization: `OAT ${accessToken}` },
+  });

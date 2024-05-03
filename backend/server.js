@@ -1,46 +1,74 @@
 const express = require("express");
-const mongoose = require("mongoose");
+
 const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 const cors = require("cors");
+const bodyParser = require("body-parser");
+const swaggerJSDoc = require("swagger-jsdoc");
 
-// Load environment variables
+const swaggerUi = require("swagger-ui-express");
+
+const { verifyToken } = require("./middleware/token_verfiy");
+
+const { authRoutes } = require("./routes/auth");
+const { accessTokenRoutes } = require("./routes/accessToken");
+const { recipeRoutes } = require("./routes/recipe");
+
+const routes = express.Router();
+
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Recipe API",
+      version: "1.0.0",
+      description: " managing recipes API",
+    },
+    servers: [
+      {
+        url: "http://localhost:3000",
+        description: "Development server",
+      },
+    ],
+  },
+  apis: [
+    "./routes/recipe.js",
+    "./routes/auth.js",
+    "./routes/accesstoken.js",
+    "./service/spoonacular.js",
+  ],
+};
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
 dotenv.config();
-
-// Create an Express application
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:3001",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
+  })
+);
+app.use(routes);
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// Connect to MongoDB
+app.get("/", (req, res) => {
+  res.status(200).send("Welcome");
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/accessToken", verifyToken, accessTokenRoutes);
+app.use("/api/recipe", verifyToken, recipeRoutes);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Error connecting to MongoDB:", err));
-
-// Apply CORS middleware
-app.use(cors());
-
-// Parse JSON request bodies
-app.use(express.json());
-
-// Import route files
-const authRoutes = require("./routes/authRoutes");
-const recipeRoutes = require("./routes/recipeRoutes");
-
-// Use the route files for different API endpoints
-app.use("/api/auth", authRoutes);
-app.use("/api/recipes", recipeRoutes);
-
-// Define a general error handling middleware (optional)
-// This can be useful for catching and handling errors globally
-app.use((err, req, res, next) => {
-  console.error("An error occurred:", err);
-  res.status(500).json({ error: "Internal Server Error" });
-});
-
-// Start the server and listen on the specified port
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+  .then(() => {
+    console.log("App has started");
+    app.listen(process.env.PORT);
+  });

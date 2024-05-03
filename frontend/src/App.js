@@ -1,60 +1,50 @@
-import Pages from "./pages/Pages";
-import Category from "./componenets/category";
-import { BrowserRouter, Link } from "react-router-dom";
-import Search from "./componenets/search";
-import styled from "styled-components";
-import { GiKnifeFork } from "react-icons/gi";
-import MyComponent from "./componenets/myComponent";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import AuthenticationPage from "./pages/authpage";
+import HomePage from "./pages/home";
+import Recipes from "./pages/Recipe";
+import RecipeDetailPage from "./pages/Details";
+import UnauthorizedPage from "./pages/Unauth";
+import CreateRecipe from "./pages/createRecipe";
+import MyRecipes from "./pages/myRecipes";
+
+const styles = {
+  appContainer: {
+    padding: "20px",
+    backgroundColor: "#f8f8f8",
+    minHeight: "100vh",
+  },
+  routeContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "100vh",
+  },
+};
 
 function App() {
   return (
-    <div className="App">
+    <div style={styles.appContainer}>
       <BrowserRouter>
-        <MyComponent />
-        <Nav>
-          <GiKnifeFork />
-          <Logo to={"/"}> BegoCooks</Logo>
-        </Nav>
-        <Search />
-        <Category />
-        <Pages />
+        <Routes>
+          <Route path="/" element={<AuthenticationPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/recipes" element={<Recipes />} />
+          <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
+          <Route path="/Myrecipes" element={<MyRecipes />} />
+          <Route path="/newrecipe" element={<CreateRecipe />} />
+          <Route
+            path="*"
+            element={
+              <UnauthorizedPage
+                path="/"
+                displayMessage="You are not authorized to access this page. Please log in to continue."
+              />
+            }
+          />
+        </Routes>
       </BrowserRouter>
     </div>
   );
 }
-
-const Logo = styled(Link)`
-  text-decoration: none;
-  font-size: 1.8rem;
-  font-weight: 700;
-  font-family: "Lobstor Two", cursive;
-  color: #333
-
-
-&:hover{
-  color: #ff7e5f
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1)
-}
-
-`;
-const Nav = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: #f7f7f7;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
-  svg {
-    font-size: 2rem;
-    margin-right: 1rem;
-    color: #333;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #ff7e5f;
-    }
-  }
-`;
 
 export default App;

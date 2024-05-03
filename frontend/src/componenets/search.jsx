@@ -1,99 +1,142 @@
 import React, { useState } from "react";
-import axios from "axios";
-import styled from "styled-components";
-import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import config from "../config";
+import { useDispatch, useSelector } from "react-redux";
+import { setPreferences, setRecipes } from "../storing/recipes";
+import { setToast } from "../storing/noti_bar";
+import Button from "../componenets/Button";
+import { getRecipes } from "../api";
+import { selectAccessToken } from "../help/select";
+import { PREFERENCES } from "../help/const";
+import { isEqualStrings } from "../help/validate";
 
-function Search() {
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+const Search = () => {
+  const accessToken = useSelector(selectAccessToken);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  const [currentPreference, setCurrentPreference] = useState({
+    diet: [],
+    intolerances: [],
+    cuisine: [],
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
+  const styles = {
+    preferenceContainer: {
+      padding: "20px",
+      borderRadius: "8px",
+      backgroundColor: "#f9f9f9",
+      marginBottom: "20px",
+    },
+    preferenceHeading: {
+      fontSize: "16px",
+      fontWeight: "bold",
+      marginBottom: "10px",
+    },
+    preferenceTagsContainer: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: "10px",
+    },
+    preferenceTag: {
+      padding: "8px 12px",
+      borderRadius: "5px",
+      border: "1px solid #ccc",
+      cursor: "pointer",
+      transition: "background-color 0.3s ease",
+    },
+    selectedTag: {
+      backgroundColor: "#007bff",
+      color: "white",
+    },
+    getRecipesBtn: {
+      marginTop: "20px",
+    },
+  };
+
+  const handleClick = ({ preferenceName, value }) => {
+    const preference = currentPreference[preferenceName];
+    const isIncluded = preference.includes(value);
+
+    const updatedPreferences = isIncluded
+      ? preference.filter((option) => !isEqualStrings([option, value]))
+      : [...preference, value];
+
+    setCurrentPreference({
+      ...currentPreference,
+      [preferenceName]: updatedPreferences,
+    });
+
+    dispatch(
+      setPreferences({
+        preferences: {
+          ...currentPreference,
+          [preferenceName]: updatedPreferences,
+        },
+      })
+    );
+  };
+
+  const handleSearch = async () => {
+    setIsLoading(true);
     try {
-      // Make a GET request to the backend server with the search query
-      const response = await axios.get(
-        `${config.apiBaseUrl}/api/recipes/search`,
-        {
-          params: {
-            query: input,
-          },
-        }
-      );
-
-      // Navigate to the search results page with the search results
-      navigate("/searched", {
-        state: { results: response.data },
+      const response = await getRecipes({
+        accessToken,
+        preferences: currentPreference,
       });
-    } catch (error) {
-      console.error("Search error:", error);
-      setError(error);
-    }
 
-    setLoading(false);
+      const recipes = await response.json();
+      dispatch(setRecipes({ recipes }));
+      localStorage.setItem("recipes", JSON.stringify(recipes));
+      navigate("/recipes");
+    } catch (error) {
+      dispatch(
+        setToast({ status: "failure", displayMessage: JSON.stringify(error) })
+      );
+    }
+    setIsLoading(false);
   };
 
   return (
-    <FormStyle onSubmit={submitHandler}>
-      <div>
-        <FaSearch />
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Search for recipes..."
-          required
-        />
+    <>
+      {/* Preference container */}
+      <div style={styles.preferenceContainer}>
+        <h3>What's your pick?</h3>
+        {PREFERENCES.map(({ name: preferenceName, options }) => (
+          <div key={preferenceName}>
+            <h2 style={styles.preferenceHeading}>{preferenceName}</h2>
+            <div style={styles.preferenceTagsContainer}>
+              {options.map(({ name: optionName, value }) => {
+                const isOptionIncluded =
+                  currentPreference[preferenceName].includes(value);
+                return (
+                  <button
+                    key={value}
+                    style={{
+                      ...styles.preferenceTag,
+                      ...(isOptionIncluded && styles.selectedTag),
+                    }}
+                    onClick={() => handleClick({ preferenceName, value })}
+                  >
+                    {optionName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
-    </FormStyle>
+
+      {/* Get Recipes button */}
+      <Button
+        text={"Get Recipes"}
+        onClick={handleSearch}
+        isLoading={isLoading}
+        className="get-recipes-btn"
+        style={styles.getRecipesBtn}
+      />
+    </>
   );
-}
-
-const FormStyle = styled.form`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 10%;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background-color: #f7f7f7;
-
-  div {
-    position: relative;
-    width: 100%;
-  }
-
-  input {
-    width: 100%;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    color: #333;
-    outline: none;
-    transition: border-color 0.2s ease;
-
-    &:hover,
-    &:focus {
-      border-color: #0072ff;
-    }
-  }
-
-  svg {
-    position: absolute;
-    top: 50%;
-    left: 0.5rem;
-    transform: translateY(-50%);
-    color: #666;
-    font-size: 1.5rem;
-  }
-`;
+};
 
 export default Search;
